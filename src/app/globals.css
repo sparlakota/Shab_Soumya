@@ -1,0 +1,195 @@
+@import "tailwindcss";
+
+:root {
+  /* Light — warm ivory foundation */
+  --background: #f5efe6;
+  --foreground: #241e1b;
+  --muted-foreground: #8a7b6c;
+  --card: #fbf7f0;
+  --border: #e3d9c9;
+  --accent: #713b46;
+  --accent-foreground: #f5efe6;
+  --accent-soft: #b7a99a;
+  --rose: #a87578;
+  --ring: #713b46;
+  --success: #5f7a5c;
+  --warning: #b08830;
+  --danger: #a24a4a;
+}
+
+/* Espresso — applied by wrapping a page/section in .dark-section.
+   Every component already reads bg-background / text-foreground / bg-card /
+   border-border / text-accent etc, which resolve to these custom properties,
+   so overriding them here is enough to flip an entire subtree to the dark
+   register without touching component classNames. */
+.dark-section {
+  --background: #241e1b;
+  --foreground: #f5efe6;
+  --muted-foreground: #b7a99a;
+  --card: #332824;
+  --border: rgba(245, 239, 230, 0.14);
+  --accent: #a87578;
+  --accent-foreground: #241e1b;
+  --accent-soft: #8a6b63;
+  --rose: #c99a9c;
+  --ring: #a87578;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-rose: var(--rose);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --font-serif: var(--font-playfair);
+  --font-sans: var(--font-dm-sans);
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  transition: background-color 0.3s ease;
+  position: relative;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-soft);
+  border-radius: 999px;
+  border: 2px solid var(--background);
+}
+
+.font-serif-display {
+  font-family: var(--font-playfair), Georgia, serif;
+}
+
+/* ---------- Editorial decorative language ---------- */
+
+/* Small uppercase eyebrow label above a big serif heading */
+.label-eyebrow {
+  font-family: var(--font-dm-sans), sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+/* Thin editorial rule */
+.rule-thin {
+  height: 1px;
+  background: var(--border);
+  border: none;
+}
+
+/* Numbered section marker, e.g. "01" */
+.editorial-number {
+  font-family: var(--font-playfair), serif;
+  font-style: italic;
+  color: var(--accent);
+  opacity: 0.85;
+}
+
+/* Subtle film-grain texture — visible only on close inspection */
+.grain-overlay {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Tiny decorative star/dot marks */
+.mark-dot {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes fade-slide-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out both;
+}
+.animate-fade-slide-up {
+  animation: fade-slide-up 0.45s ease-out both;
+}
+
+/* ---------- Leaflet: espresso map treatment ---------- */
+.leaflet-container {
+  background: #241e1b;
+  font-family: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+}
+.leaflet-popup-content-wrapper {
+  background: #332824;
+  color: #f5efe6;
+  border-radius: 14px;
+  border: 1px solid rgba(245, 239, 230, 0.14);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+.leaflet-popup-tip {
+  background: #332824;
+}
+.leaflet-popup-close-button {
+  color: #b7a99a !important;
+}
+.leaflet-control-zoom a {
+  background: #332824 !important;
+  color: #f5efe6 !important;
+  border-color: rgba(245, 239, 230, 0.14) !important;
+}
+.leaflet-control-zoom a:hover {
+  background: #241e1b !important;
+}
+.leaflet-control-attribution {
+  background: rgba(36, 30, 27, 0.75) !important;
+  color: #b7a99a !important;
+}
+.leaflet-control-attribution a {
+  color: #d8c9b8 !important;
+}
+/* Desaturate + darken the OSM tiles so they read as an espresso map,
+   not a bright default basemap. */
+.leaflet-tile-pane {
+  filter: brightness(0.62) saturate(0.55) sepia(0.35) hue-rotate(-8deg) contrast(1.05);
+}
