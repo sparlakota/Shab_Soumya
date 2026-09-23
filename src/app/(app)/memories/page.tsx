@@ -18,7 +18,6 @@ export default async function MemoriesPage() {
     <MemoriesClient
       initialMemories={(memories as unknown as MemoryWithMedia[]) ?? []}
       profile={session.profile}
-      partner={session.partner}
     />
   );
 }

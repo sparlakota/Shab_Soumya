@@ -24,13 +24,11 @@ export function HeroConnector({
   partner,
   avatarA,
   avatarB,
-  photoUrl,
 }: {
   profile: Profile;
   partner: Profile;
   avatarA: string | null;
   avatarB: string | null;
-  photoUrl?: string | null;
 }) {
   return (
     <div className="mx-auto flex max-w-md flex-col items-center">
@@ -38,13 +36,7 @@ export function HeroConnector({
         <Portrait profile={profile} avatarUrl={avatarA} />
         <div className="relative flex-1">
           <div className="rule-thin" />
-          {photoUrl ? (
-            <div className="absolute left-1/2 top-1/2 h-14 w-14 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full border-2 border-background shadow-[0_4px_16px_rgba(74,20,32,0.25)] sm:h-20 sm:w-20">
-              <Image src={photoUrl} alt="Between us" fill sizes="80px" className="object-cover" />
-            </div>
-          ) : (
-            <span className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-accent" />
-          )}
+          <span className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-accent" />
         </div>
         <Portrait profile={partner} avatarUrl={avatarB} />
       </div>

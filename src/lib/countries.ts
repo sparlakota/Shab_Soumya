@@ -155,6 +155,7 @@ export const COUNTRIES: { name: string; lat: number; lng: number }[] = [
   { name: "San Marino", lat: 43.9424, lng: 12.4578 },
   { name: "Sao Tome and Principe", lat: 0.1864, lng: 6.6131 },
   { name: "Saudi Arabia", lat: 23.8859, lng: 45.0792 },
+  { name: "Scotland", lat: 56.4907, lng: -4.2026 },
   { name: "Senegal", lat: 14.4974, lng: -14.4524 },
   { name: "Serbia", lat: 44.0165, lng: 21.0059 },
   { name: "Seychelles", lat: -4.6796, lng: 55.4920 },

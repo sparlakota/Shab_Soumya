@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Gamepad2, Map, ListChecks, Images, HeartHandshake, ArrowRight, CalendarHeart } from "lucide-react";
 import { getCurrentProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -103,8 +104,22 @@ export default async function HomePage() {
         </p>
       </div>
 
+      {heroPhotoUrl && (
+        <div className="mx-auto mb-10 h-72 w-full max-w-xl overflow-hidden rounded-3xl border border-border shadow-[0_16px_40px_rgba(74,20,32,0.2)] sm:mb-14 sm:h-[26rem]">
+          <Image
+            src={heroPhotoUrl}
+            alt="Between us"
+            width={720}
+            height={832}
+            sizes="(min-width: 640px) 576px, 100vw"
+            className="h-full w-full object-cover"
+            priority
+          />
+        </div>
+      )}
+
       <div className="mb-10 sm:mb-14">
-        <HeroConnector profile={profile} partner={partner} avatarA={profileAvatarUrl} avatarB={partnerAvatarUrl} photoUrl={heroPhotoUrl} />
+        <HeroConnector profile={profile} partner={partner} avatarA={profileAvatarUrl} avatarB={partnerAvatarUrl} />
       </div>
 
       {/* ---------- Editorial section grid ---------- */}

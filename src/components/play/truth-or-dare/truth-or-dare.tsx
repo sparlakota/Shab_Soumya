@@ -17,7 +17,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/components/ui/toast";
 import type { Game, Profile, TruthDarePrompt, TruthDareRound, TruthDareType, TruthDareLevel } from "@/lib/database.types";
 
-const LEVELS: TruthDareLevel[] = ["cute", "funny", "deep", "flirty", "bold"];
+const LEVELS: TruthDareLevel[] = ["cute", "flirty", "bold"];
 
 export function TruthOrDare({ game, profile, partner }: { game: Game; profile: Profile; partner: Profile }) {
   const supabase = createClient();

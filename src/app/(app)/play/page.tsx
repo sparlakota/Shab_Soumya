@@ -23,13 +23,13 @@ export default async function PlayPage() {
   }
 
   const order = [
+    "truth_or_dare",
     "guess_me",
     "this_or_that",
     "two_truths",
     "draw_together",
     "card_game",
     "random_challenge",
-    "truth_or_dare",
   ];
   const sortedGames = [...(games ?? [])].sort(
     (a, b) => order.indexOf(a.slug) - order.indexOf(b.slug)
@@ -42,7 +42,7 @@ export default async function PlayPage() {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {sortedGames.map((game, i) => {
             const stats = statsByGame.get(game.id) ?? { count: 0, last: null };
-            const featured = i === sortedGames.length - 1;
+            const featured = i === 0;
             return (
               <div key={game.id} className={featured ? "sm:col-span-2 lg:col-span-3" : ""}>
                 <GameCard game={game} playCount={stats.count} lastPlayed={stats.last} index={i} featured={featured} />
