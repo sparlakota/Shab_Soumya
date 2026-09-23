@@ -16,7 +16,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/components/ui/toast";
 import type { CardDraw, CardItem, Game, Profile } from "@/lib/database.types";
 
-const CATEGORIES = ["funny", "deep", "romantic", "flirty", "random", "challenge", "wild"];
+const CATEGORIES = ["funny", "deep", "romantic", "flirty", "intimate", "random", "challenge", "wild"];
 
 export function CardGame({ game, profile, partner }: { game: Game; profile: Profile; partner: Profile }) {
   const supabase = createClient();

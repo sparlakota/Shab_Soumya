@@ -14,7 +14,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/components/ui/toast";
 import type { Challenge, ChallengeCompletion, Game, Profile } from "@/lib/database.types";
 
-const CATEGORIES = ["funny", "creative", "romantic", "random", "competitive", "flirty"];
+const CATEGORIES = ["funny", "creative", "romantic", "random", "competitive", "flirty", "wild"];
 
 export function RandomChallenge({ game, profile }: { game: Game; profile: Profile; partner: Profile }) {
   const supabase = createClient();

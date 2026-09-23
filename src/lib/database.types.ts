@@ -122,6 +122,7 @@ export type GameSession = {
   status: GameSessionStatus;
   category: string | null;
   custom_question: string | null;
+  question_ids: string[] | null;
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -141,9 +142,22 @@ export type GameQuestion = {
   game_id: string | null;
   category: string;
   prompt: string;
+  options: string[] | null;
   target_user_id: string | null;
   is_custom: boolean;
   created_by: string | null;
+  created_at: string;
+}
+
+export type GuessMeEntryPhase = "self" | "guess";
+
+export type GuessMeEntry = {
+  id: string;
+  session_id: string;
+  question_id: string;
+  user_id: string;
+  phase: GuessMeEntryPhase;
+  choice: string;
   created_at: string;
 }
 
@@ -339,6 +353,7 @@ export type Database = {
       game_players: TableDef<GamePlayer>;
       game_questions: TableDef<GameQuestion>;
       game_answers: TableDef<GameAnswer>;
+      guess_me_entries: TableDef<GuessMeEntry>;
       game_results: TableDef<GameResult>;
       ttal_statements: TableDef<TtalStatement>;
       ttal_guesses: TableDef<TtalGuess>;

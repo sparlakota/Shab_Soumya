@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Game, GameQuestion, Profile } from "@/lib/database.types";
 
-const CATEGORIES = ["food", "travel", "personality", "lifestyle", "funny", "romantic", "deep", "random"];
+const CATEGORIES = ["food", "travel", "personality", "lifestyle", "funny", "romantic", "intimate", "deep", "wild", "random"];
 
 export function ThisOrThat({ game, profile, partner }: { game: Game; profile: Profile; partner: Profile }) {
   const round = useSimultaneousRound({ gameId: game.id, profile, partner });
