@@ -71,7 +71,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, { disabled?: boolea
     ctx.moveTo(prev.x, prev.y);
     ctx.lineTo(point.x, point.y);
     ctx.stroke();
-    setHasContent(true);
+    if (!hasContent) setHasContent(true);
   }
 
   function handlePointerUp() {

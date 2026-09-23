@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { GameAnswer, GamePlayer, GameSession, Profile } from "@/lib/database.types";
 
@@ -26,21 +26,28 @@ export function useSimultaneousRound({
   const [answers, setAnswers] = useState<GameAnswer[]>([]);
   const [loading, setLoading] = useState(true);
   const [revealCountdown, setRevealCountdown] = useState<number | null>(null);
+  // A completed round needs to stay visible through the reveal screen. Once
+  // the countdown effect marks status "completed", the next poll or realtime
+  // tick would otherwise stop matching a waiting/active-only filter and yank
+  // the UI back to the category picker mid-reveal — reset() dismisses it
+  // explicitly instead of the filter doing it implicitly.
+  const dismissedSessionId = useRef<string | null>(null);
 
   const loadOpenSession = useCallback(async () => {
     const { data } = await supabase
       .from("game_sessions")
       .select("*")
       .eq("game_id", gameId)
-      .in("status", ["waiting", "active"])
+      .in("status", ["waiting", "active", "completed"])
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
-    setSession(data ?? null);
-    if (data) {
+    const current = data && data.id !== dismissedSessionId.current ? data : null;
+    setSession(current);
+    if (current) {
       const [{ data: p }, { data: a }] = await Promise.all([
-        supabase.from("game_players").select("*").eq("session_id", data.id),
-        supabase.from("game_answers").select("*").eq("session_id", data.id),
+        supabase.from("game_players").select("*").eq("session_id", current.id),
+        supabase.from("game_answers").select("*").eq("session_id", current.id),
       ]);
       setPlayers(p ?? []);
       setAnswers(a ?? []);
@@ -131,19 +138,32 @@ export function useSimultaneousRound({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answers.length, session?.id]);
 
+  const myPlayer = players.find((p) => p.user_id === profile.id);
   const partnerPlayer = players.find((p) => p.user_id === partner.id);
   const myAnswer = answers.find((a) => a.user_id === profile.id);
   const partnerAnswer = answers.find((a) => a.user_id === partner.id);
 
+  // "waiting" has two distinct reasons, both meaning "I personally haven't
+  // joined this round yet": I'm the creator and haven't been auto-joined for
+  // some reason, or I'm the partner and haven't clicked "Join round" yet.
+  // Gating this on partnerPlayer (whether the OTHER person has a players row)
+  // instead of myPlayer meant the joiner's own phase calculation always saw
+  // the creator's row as "the partner," treated the round as already joined,
+  // and skipped straight past the join step — leaving their own players row
+  // (and the session's active status) never created, which then left the
+  // creator's screen stuck on "waiting for partner to join" forever, even
+  // after the partner had already locked in an answer.
   const phase: RoundPhase = !session
     ? "idle"
-    : session.status === "waiting" && !partnerPlayer
+    : !myPlayer
       ? "waiting"
-      : revealCountdown !== null && revealCountdown > 0
-        ? "revealing"
-        : answers.length >= 2 || session.status === "completed"
-          ? "revealed"
-          : "active";
+      : session.status === "waiting" && !partnerPlayer
+        ? "waiting"
+        : revealCountdown !== null && revealCountdown > 0
+          ? "revealing"
+          : answers.length >= 2 || session.status === "completed"
+            ? "revealed"
+            : "active";
 
   async function createRound(question: string, category: string | null) {
     const { data: newSession, error } = await supabase
@@ -174,6 +194,7 @@ export function useSimultaneousRound({
   }
 
   function reset() {
+    if (session) dismissedSessionId.current = session.id;
     setSession(null);
     setPlayers([]);
     setAnswers([]);

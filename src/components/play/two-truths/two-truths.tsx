@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, X, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { logActivity } from "@/lib/activity";
@@ -21,16 +21,24 @@ export function TwoTruths({ game, profile, partner }: { game: Game; profile: Pro
   const [drafts, setDrafts] = useState(["", "", ""]);
   const [lieIndex, setLieIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  // The reveal needs to stay visible once the round completes. Filtering the
+  // query to status=active only meant the moment submitGuess() marked a round
+  // "completed", it vanished from both players' next load() — neither the
+  // guesser nor the creator ever actually saw who was right. Broadening the
+  // filter keeps it visible; dismissedSessionId (set by "Continue") is what
+  // moves past it instead of the status filter doing so implicitly.
+  const dismissedSessionId = useRef<string | null>(null);
 
   const load = useCallback(async () => {
-    const { data: openSession } = await supabase
+    const { data: found } = await supabase
       .from("game_sessions")
       .select("*")
       .eq("game_id", game.id)
-      .eq("status", "active")
+      .in("status", ["active", "completed"])
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
+    const openSession = found && found.id !== dismissedSessionId.current ? found : null;
 
     if (openSession) {
       const [{ data: st }, { data: gs }] = await Promise.all([
@@ -278,7 +286,14 @@ export function TwoTruths({ game, profile, partner }: { game: Game; profile: Pro
             "Fooled you."
           )}
         </p>
-        <Button className="w-full" size="lg" onClick={load}>
+        <Button
+          className="w-full"
+          size="lg"
+          onClick={() => {
+            if (session) dismissedSessionId.current = session.id;
+            load();
+          }}
+        >
           Continue
         </Button>
       </div>
