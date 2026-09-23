@@ -11,8 +11,6 @@ const WorldMapInner = dynamic(() => import("./world-map-inner").then((m) => m.Wo
 
 export function WorldMap(props: {
   places: Place[];
-  addMode: boolean;
-  onMapClick: (lat: number, lng: number) => void;
   onSelectPlace: (place: Place) => void;
 }) {
   return <WorldMapInner {...props} />;

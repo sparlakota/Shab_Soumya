@@ -46,19 +46,19 @@ export function NoteEnvelope({ note, isReceived, onOpened }: { note: LittleThing
           locked ? "opacity-50" : ""
         }`}
       >
-        <div className="relative bg-[#F5EFE6] p-4 pt-5 text-[#241E1B] shadow-[0_6px_16px_rgba(0,0,0,0.35)]">
-          <span className="absolute -top-1.5 left-1/2 h-3 w-8 -translate-x-1/2 rotate-1 bg-[#e3d9c9]/80" />
-          <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-[#713B46]/10">
+        <div className="relative bg-card p-4 pt-5 text-foreground shadow-[0_6px_16px_rgba(74,20,32,0.25)]">
+          <span className="absolute -top-1.5 left-1/2 h-3 w-8 -translate-x-1/2 rotate-1 bg-border/80" />
+          <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-accent/10">
             {locked ? (
-              <Clock className="h-3.5 w-3.5 text-[#713B46]" />
+              <Clock className="h-3.5 w-3.5 text-accent" />
             ) : note.opened_at ? (
-              <MailOpen className="h-3.5 w-3.5 text-[#8a7b6c]" />
+              <MailOpen className="h-3.5 w-3.5 text-muted-foreground" />
             ) : (
-              <Mail className="h-3.5 w-3.5 text-[#713B46]" />
+              <Mail className="h-3.5 w-3.5 text-accent" />
             )}
           </div>
           <p className="font-serif-display text-base italic leading-snug">{categoryLabel(note.category)}</p>
-          <p className="mt-2 text-[10px] uppercase tracking-wide text-[#8a7b6c]">
+          <p className="mt-2 text-[10px] uppercase tracking-wide text-muted-foreground">
             {locked ? `Opens ${format(new Date(note.reveal_at!), "MMM d, h:mm a")}` : format(new Date(note.created_at), "MMM d")}
           </p>
         </div>
@@ -70,7 +70,7 @@ export function NoteEnvelope({ note, isReceived, onOpened }: { note: LittleThing
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[#241e1b]/55 p-4 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[#2a0a10]/55 p-4 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           >
             <motion.div

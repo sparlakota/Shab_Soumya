@@ -12,6 +12,9 @@ import { SectionGrid } from "@/components/home/section-grid";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 
+// The featured "between us" photo shown on the home hero.
+const HERO_PHOTO_PATH = "6f843db9-ca22-4a35-99a2-dd23a88bfa25/1790170061136-ya0ptvo4.jpg";
+
 export default async function HomePage() {
   const session = await getCurrentProfile();
   if (!session) redirect("/login");
@@ -70,6 +73,8 @@ export default async function HomePage() {
     ? await getSignedUrl(supabase, "memories", recentMemoryMedia.storage_path)
     : null;
 
+  const heroPhotoUrl = await getSignedUrl(supabase, "memories", HERO_PHOTO_PATH);
+
   const upcoming = nextTripPlace ?? upcomingWishlist ?? null;
   const upcomingLabel = nextTripPlace
     ? nextTripPlace.name
@@ -78,32 +83,32 @@ export default async function HomePage() {
       : null;
 
   return (
-    <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8 sm:py-14">
+    <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8 sm:py-8">
       {/* ---------- Cinematic hero ---------- */}
-      <div className="mb-16 flex items-center justify-between sm:mb-20">
+      <div className="mb-8 flex items-center justify-between sm:mb-10">
         <p className="label-eyebrow">
           S&amp;S <span className="mx-1.5 opacity-40">·</span> Private Space
         </p>
         <p className="label-eyebrow">2026</p>
       </div>
 
-      <div className="mb-16 text-center sm:mb-24">
-        <h1 className="font-serif-display text-6xl font-medium leading-[0.92] tracking-tight sm:text-8xl md:text-9xl">
+      <div className="mb-8 text-center sm:mb-10">
+        <h1 className="font-serif-display text-5xl font-medium leading-[0.92] tracking-tight sm:text-7xl md:text-8xl">
           BETWEEN
           <br />
           <span className="italic text-accent">US</span>
         </h1>
-        <p className="mx-auto mt-6 max-w-sm text-base italic text-muted-foreground">
+        <p className="mx-auto mt-4 max-w-sm text-base italic text-muted-foreground">
           Our little corner of the internet.
         </p>
       </div>
 
-      <div className="mb-20 sm:mb-28">
-        <HeroConnector profile={profile} partner={partner} avatarA={profileAvatarUrl} avatarB={partnerAvatarUrl} />
+      <div className="mb-10 sm:mb-14">
+        <HeroConnector profile={profile} partner={partner} avatarA={profileAvatarUrl} avatarB={partnerAvatarUrl} photoUrl={heroPhotoUrl} />
       </div>
 
       {/* ---------- Editorial section grid ---------- */}
-      <div className="mb-20 sm:mb-28">
+      <div className="mb-10 sm:mb-14">
         <SectionGrid
           memoryPreviewUrl={memoryPreviewUrl}
           placesVisited={placesVisited ?? 0}
@@ -112,12 +117,12 @@ export default async function HomePage() {
       </div>
 
       {/* ---------- Functional dashboard: status, stats, activity ---------- */}
-      <div className="mb-16 border-t border-border pt-14 sm:mb-20">
+      <div className="mb-8 border-t border-border pt-8 sm:mb-10">
         <p className="label-eyebrow mb-5">Current status</p>
         <LiveStatusSection avatarA={profileAvatarUrl} avatarB={partnerAvatarUrl} />
       </div>
 
-      <div className="mb-16 sm:mb-20">
+      <div className="mb-8 sm:mb-10">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
           <StatCard icon={Gamepad2} value={gamesPlayed ?? 0} label="Games played" />
           <StatCard icon={Map} value={placesSaved ?? 0} label="Places saved" />
@@ -160,7 +165,7 @@ export default async function HomePage() {
         </section>
       </div>
 
-      <p className="mt-20 text-center font-serif-display text-xl italic text-muted-foreground sm:mt-28">
+      <p className="mt-14 text-center font-serif-display text-xl italic text-muted-foreground sm:mt-16">
         Two people. One little world.
       </p>
     </div>

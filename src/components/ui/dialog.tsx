@@ -38,7 +38,7 @@ export function Dialog({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-[#242321]/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-[#2a0a10]/40 backdrop-blur-sm"
             onClick={onClose}
           />
           <motion.div

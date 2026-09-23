@@ -137,21 +137,21 @@ export function SectionGrid({
         </div>
       </Link>
 
-      {/* OUR RULES — dark full-bleed banner */}
+      {/* OUR RULES — maroon full-bleed banner */}
       <Link
         href="/rules"
-        className="dark-section group relative col-span-1 overflow-hidden rounded-none bg-background p-8 sm:col-span-2 lg:col-span-4"
+        className="group relative col-span-1 overflow-hidden rounded-none bg-accent p-8 text-accent-foreground sm:col-span-2 lg:col-span-4"
       >
         <div className="relative flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div className="flex items-center gap-4">
-            <span className="editorial-number text-lg">08</span>
-            <ScrollText className="h-5 w-5 text-accent" strokeWidth={1.5} />
+            <span className="editorial-number text-lg text-accent-foreground/85">08</span>
+            <ScrollText className="h-5 w-5 text-accent-foreground" strokeWidth={1.5} />
             <div>
-              <h3 className="font-serif-display text-3xl leading-tight text-foreground">Our Rules</h3>
-              <p className="mt-1 text-xs text-muted-foreground">The way we choose us. Every day.</p>
+              <h3 className="font-serif-display text-3xl leading-tight text-accent-foreground">Our Rules</h3>
+              <p className="mt-1 text-xs text-accent-foreground/70">The way we choose us. Every day.</p>
             </div>
           </div>
-          <ArrowUpRight className="h-5 w-5 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-accent" />
+          <ArrowUpRight className="h-5 w-5 text-accent-foreground/70 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
         </div>
       </Link>
     </div>

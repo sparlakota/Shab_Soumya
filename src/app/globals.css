@@ -1,39 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  /* Light — warm ivory foundation */
-  --background: #f5efe6;
-  --foreground: #241e1b;
-  --muted-foreground: #8a7b6c;
-  --card: #fbf7f0;
-  --border: #e3d9c9;
-  --accent: #713b46;
-  --accent-foreground: #f5efe6;
-  --accent-soft: #b7a99a;
-  --rose: #a87578;
-  --ring: #713b46;
+  /* Rose pink foundation, maroon ink */
+  --background: #fbe4e8;
+  --foreground: #4a1420;
+  --muted-foreground: #8b4a56;
+  --card: #fff3f5;
+  --border: #f0c9d0;
+  --accent: #7a1f2e;
+  --accent-foreground: #fbe4e8;
+  --accent-soft: #c98a95;
+  --rose: #d98a97;
+  --ring: #7a1f2e;
   --success: #5f7a5c;
   --warning: #b08830;
   --danger: #a24a4a;
 }
 
-/* Espresso — applied by wrapping a page/section in .dark-section.
-   Every component already reads bg-background / text-foreground / bg-card /
-   border-border / text-accent etc, which resolve to these custom properties,
-   so overriding them here is enough to flip an entire subtree to the dark
-   register without touching component classNames. */
+/* .dark-section previously flipped a subtree to an espresso dark theme via
+   these same custom properties. The site now uses one consistent rose/maroon
+   register everywhere, so this is intentionally a no-op — kept only so the
+   className doesn't need to be stripped from every page/component that still
+   references it. Contrast accents now come from explicit bg-accent +
+   text-accent-foreground (e.g. the featured Play card, the Our Rules banner)
+   instead of a section-wide theme flip. */
 .dark-section {
-  --background: #241e1b;
-  --foreground: #f5efe6;
-  --muted-foreground: #b7a99a;
-  --card: #332824;
-  --border: rgba(245, 239, 230, 0.14);
-  --accent: #a87578;
-  --accent-foreground: #241e1b;
-  --accent-soft: #8a6b63;
-  --rose: #c99a9c;
-  --ring: #a87578;
-  color-scheme: dark;
 }
 
 @theme inline {
@@ -155,41 +146,41 @@ body {
   animation: fade-slide-up 0.45s ease-out both;
 }
 
-/* ---------- Leaflet: espresso map treatment ---------- */
+/* ---------- Leaflet: rose/maroon map treatment ---------- */
 .leaflet-container {
-  background: #241e1b;
+  background: #fbe4e8;
   font-family: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
 }
 .leaflet-popup-content-wrapper {
-  background: #332824;
-  color: #f5efe6;
+  background: #fff3f5;
+  color: #4a1420;
   border-radius: 14px;
-  border: 1px solid rgba(245, 239, 230, 0.14);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  border: 1px solid #f0c9d0;
+  box-shadow: 0 12px 32px rgba(74, 20, 32, 0.25);
 }
 .leaflet-popup-tip {
-  background: #332824;
+  background: #fff3f5;
 }
 .leaflet-popup-close-button {
-  color: #b7a99a !important;
+  color: #8b4a56 !important;
 }
 .leaflet-control-zoom a {
-  background: #332824 !important;
-  color: #f5efe6 !important;
-  border-color: rgba(245, 239, 230, 0.14) !important;
+  background: #fff3f5 !important;
+  color: #4a1420 !important;
+  border-color: #f0c9d0 !important;
 }
 .leaflet-control-zoom a:hover {
-  background: #241e1b !important;
+  background: #fbe4e8 !important;
 }
 .leaflet-control-attribution {
-  background: rgba(36, 30, 27, 0.75) !important;
-  color: #b7a99a !important;
+  background: rgba(255, 243, 245, 0.85) !important;
+  color: #8b4a56 !important;
 }
 .leaflet-control-attribution a {
-  color: #d8c9b8 !important;
+  color: #7a1f2e !important;
 }
-/* Desaturate + darken the OSM tiles so they read as an espresso map,
-   not a bright default basemap. */
+/* Gently warm the OSM tiles toward the rose/maroon palette without
+   darkening them — the map background is now light. */
 .leaflet-tile-pane {
-  filter: brightness(0.62) saturate(0.55) sepia(0.35) hue-rotate(-8deg) contrast(1.05);
+  filter: saturate(0.7) sepia(0.15) hue-rotate(-10deg) contrast(1.02);
 }

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { uploadFile, getSignedUrls } from "@/lib/storage";
 import { logActivity } from "@/lib/activity";
 import { PLACE_CATEGORIES } from "@/lib/place-category";
+import { COUNTRIES } from "@/lib/countries";
 import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
@@ -20,7 +21,6 @@ export function PlaceDialog({
   onDeleted,
   profile,
   place,
-  initialLatLng,
 }: {
   open: boolean;
   onClose: () => void;
@@ -28,11 +28,11 @@ export function PlaceDialog({
   onDeleted?: () => void;
   profile: Profile;
   place?: Place | null;
-  initialLatLng?: { lat: number; lng: number } | null;
 }) {
   const supabase = createClient();
   const { push } = useToast();
   const [name, setName] = useState("");
+  const [country, setCountry] = useState("");
   const [category, setCategory] = useState<PlaceCategory>("want_to_go");
   const [description, setDescription] = useState("");
   const [notes, setNotes] = useState("");
@@ -57,6 +57,7 @@ export function PlaceDialog({
         });
     } else {
       setName("");
+      setCountry("");
       setCategory("want_to_go");
       setDescription("");
       setNotes("");
@@ -66,26 +67,27 @@ export function PlaceDialog({
   }, [place, open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleSave() {
-    if (!name.trim()) return;
     setSaving(true);
     try {
       if (place) {
+        if (!name.trim()) return;
         await supabase
           .from("places")
           .update({ name: name.trim(), category, description: description || null, notes: notes || null, place_date: date || null })
           .eq("id", place.id);
       } else {
-        if (!initialLatLng) return;
+        const picked = COUNTRIES.find((c) => c.name === country);
+        if (!picked) return;
         const { data: created } = await supabase
           .from("places")
           .insert({
-            name: name.trim(),
+            name: picked.name,
             category,
             description: description || null,
             notes: notes || null,
             place_date: date || null,
-            lat: initialLatLng.lat,
-            lng: initialLatLng.lng,
+            lat: picked.lat,
+            lng: picked.lng,
             added_by: profile.id,
           })
           .select()
@@ -93,7 +95,7 @@ export function PlaceDialog({
         if (created) {
           await logActivity(supabase, {
             actionType: "place_added",
-            description: `${profile.display_name} added ${name.trim()} to Our World.`,
+            description: `${profile.display_name} added ${picked.name} to Our World.`,
             targetType: "place",
             targetId: created.id,
           });
@@ -169,10 +171,27 @@ export function PlaceDialog({
         {place ? "Edit place" : "Add a place"}
       </p>
       <div className="space-y-4">
-        <div className="space-y-1.5">
-          <Label>Name</Label>
-          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Mulki" />
-        </div>
+        {place ? (
+          <div className="space-y-1.5">
+            <Label>Name</Label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Mulki" />
+          </div>
+        ) : (
+          <div className="space-y-1.5">
+            <Label>Country</Label>
+            <Select value={country} onChange={(e) => setCountry(e.target.value)}>
+              <option value="">Select a country…</option>
+              {COUNTRIES.map((c) => (
+                <option key={c.name} value={c.name}>
+                  {c.name}
+                </option>
+              ))}
+            </Select>
+            <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <MapPin className="h-3 w-3" /> The pin drops on the country automatically.
+            </p>
+          </div>
+        )}
         <div className="space-y-1.5">
           <Label>Category</Label>
           <Select value={category} onChange={(e) => setCategory(e.target.value as PlaceCategory)}>
@@ -239,7 +258,7 @@ export function PlaceDialog({
               <Trash2 className="h-4 w-4" />
             </Button>
           )}
-          <Button className="flex-1" onClick={handleSave} disabled={saving || !name.trim()}>
+          <Button className="flex-1" onClick={handleSave} disabled={saving || (place ? !name.trim() : !country)}>
             {saving ? "Saving…" : "Save"}
           </Button>
         </div>

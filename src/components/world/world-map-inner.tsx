@@ -1,6 +1,6 @@
 "use client";
 
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import { categoryMeta } from "@/lib/place-category";
 import type { Place } from "@/lib/database.types";
@@ -8,30 +8,17 @@ import type { Place } from "@/lib/database.types";
 function pinIcon(color: string) {
   return L.divIcon({
     className: "",
-    html: `<div style="width:18px;height:18px;border-radius:50%;background:${color};border:2.5px solid #F5EFE6;box-shadow:0 2px 8px rgba(0,0,0,0.5)"></div>`,
+    html: `<div style="width:18px;height:18px;border-radius:50%;background:${color};border:2.5px solid #FFF3F5;box-shadow:0 2px 8px rgba(74,20,32,0.4)"></div>`,
     iconSize: [18, 18],
     iconAnchor: [9, 9],
   });
 }
 
-function ClickCapture({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
-  useMapEvents({
-    click(e) {
-      onMapClick(e.latlng.lat, e.latlng.lng);
-    },
-  });
-  return null;
-}
-
 export function WorldMapInner({
   places,
-  addMode,
-  onMapClick,
   onSelectPlace,
 }: {
   places: Place[];
-  addMode: boolean;
-  onMapClick: (lat: number, lng: number) => void;
   onSelectPlace: (place: Place) => void;
 }) {
   const center: [number, number] =
@@ -42,13 +29,12 @@ export function WorldMapInner({
       center={center}
       zoom={places.length > 0 ? 4 : 2}
       scrollWheelZoom
-      className={`h-full w-full ${addMode ? "cursor-crosshair" : ""}`}
+      className="h-full w-full"
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      {addMode && <ClickCapture onMapClick={onMapClick} />}
       {places.map((p) => (
         <Marker
           key={p.id}
