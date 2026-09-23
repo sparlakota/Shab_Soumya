@@ -86,8 +86,13 @@ export function TruthOrDare({ game, profile, partner }: { game: Game; profile: P
         () => loadRounds(sessionId)
       )
       .subscribe();
+    // Realtime UPDATE events (marking a round completed/skipped) are unreliable
+    // in practice — poll as a safety net so a resolved round never looks stuck
+    // pending on the other player's screen.
+    const poll = setInterval(() => loadRounds(sessionId), 4000);
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(poll);
     };
   }, [sessionId, supabase, loadRounds]);
 

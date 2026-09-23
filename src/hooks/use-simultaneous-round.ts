@@ -56,6 +56,9 @@ export function useSimultaneousRound({
   }, [loadOpenSession]);
 
   // Lobby-level: watch for a brand new session on this game so the partner sees it appear.
+  // Polling alongside the subscription is a safety net — realtime UPDATE events
+  // (e.g. session status changes) have proven unreliable in practice, so this
+  // guarantees the round never looks stuck even if a push is missed.
   useEffect(() => {
     const channel = supabase
       .channel(`lobby-${gameId}`)
@@ -65,35 +68,34 @@ export function useSimultaneousRound({
         () => loadOpenSession()
       )
       .subscribe();
+    const poll = setInterval(loadOpenSession, 4000);
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(poll);
     };
   }, [supabase, gameId, loadOpenSession]);
 
   // Session-level: players joining, answers locking in.
   useEffect(() => {
     if (!session) return;
+    const refetch = async () => {
+      const [{ data: p }, { data: a }] = await Promise.all([
+        supabase.from("game_players").select("*").eq("session_id", session.id),
+        supabase.from("game_answers").select("*").eq("session_id", session.id),
+      ]);
+      setPlayers(p ?? []);
+      setAnswers(a ?? []);
+    };
     const channel = supabase
       .channel(`session-${session.id}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "game_players", filter: `session_id=eq.${session.id}` },
-        async () => {
-          const { data } = await supabase.from("game_players").select("*").eq("session_id", session.id);
-          setPlayers(data ?? []);
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "game_answers", filter: `session_id=eq.${session.id}` },
-        async () => {
-          const { data } = await supabase.from("game_answers").select("*").eq("session_id", session.id);
-          setAnswers(data ?? []);
-        }
-      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "game_players", filter: `session_id=eq.${session.id}` }, refetch)
+      .on("postgres_changes", { event: "*", schema: "public", table: "game_answers", filter: `session_id=eq.${session.id}` }, refetch)
       .subscribe();
+    // Safety net alongside the subscription — see the comment on the lobby-level effect above.
+    const poll = setInterval(refetch, 4000);
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(poll);
     };
   }, [supabase, session]);
 

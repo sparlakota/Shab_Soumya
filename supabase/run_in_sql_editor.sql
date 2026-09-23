@@ -732,3 +732,39 @@ alter table public.guess_me_entries enable row level security;
 create policy "guess_me_entries_all_authenticated" on public.guess_me_entries for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 
 alter publication supabase_realtime add table public.guess_me_entries;
+
+-- ============================================================
+-- 0006_enable_realtime.sql — publish changes for every table the
+-- app subscribes to live (see comment in the migration file for why).
+-- ============================================================
+alter publication supabase_realtime add table
+  public.profiles,
+  public.fights,
+  public.fight_perspectives,
+  public.fight_resolutions,
+  public.game_sessions,
+  public.game_players,
+  public.game_answers,
+  public.places,
+  public.ttal_guesses,
+  public.wishlist_items,
+  public.memories,
+  public.truth_dare_rounds,
+  public.little_things,
+  public.rules;
+
+alter table public.profiles replica identity full;
+alter table public.fights replica identity full;
+alter table public.fight_perspectives replica identity full;
+alter table public.fight_resolutions replica identity full;
+alter table public.game_sessions replica identity full;
+alter table public.game_players replica identity full;
+alter table public.game_answers replica identity full;
+alter table public.places replica identity full;
+alter table public.ttal_guesses replica identity full;
+alter table public.wishlist_items replica identity full;
+alter table public.memories replica identity full;
+alter table public.truth_dare_rounds replica identity full;
+alter table public.little_things replica identity full;
+alter table public.rules replica identity full;
+alter table public.guess_me_entries replica identity full;

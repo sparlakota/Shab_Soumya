@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
-import { Shuffle, Plus } from "lucide-react";
+import { Shuffle, Plus, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { logActivity } from "@/lib/activity";
 import { GameShell } from "@/components/play/game-shell";
@@ -14,7 +14,7 @@ import { Select } from "@/components/ui/select";
 import { Dialog } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/components/ui/toast";
-import type { CardDraw, CardItem, Game, Profile } from "@/lib/database.types";
+import type { CardDraw, CardItem, Game, GameSession, Profile } from "@/lib/database.types";
 
 const CATEGORIES = ["funny", "deep", "romantic", "flirty", "intimate", "random", "challenge", "wild"];
 
@@ -22,13 +22,24 @@ export function CardGame({ game, profile, partner }: { game: Game; profile: Prof
   const supabase = createClient();
   const { push } = useToast();
   const [cards, setCards] = useState<CardItem[]>([]);
-  const [drawn, setDrawn] = useState<CardItem | null>(null);
+  const [session, setSession] = useState<GameSession | null>(null);
   const [history, setHistory] = useState<(CardDraw & { card: CardItem | null })[]>([]);
   const [category, setCategory] = useState<string>("all");
   const [addOpen, setAddOpen] = useState(false);
   const [newCategory, setNewCategory] = useState(CATEGORIES[0]);
   const [newPrompt, setNewPrompt] = useState("");
   const [loading, setLoading] = useState(true);
+
+  const loadSession = useCallback(async () => {
+    const { data } = await supabase
+      .from("game_sessions")
+      .select("*")
+      .eq("game_id", game.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    setSession(data && data.status === "active" ? data : null);
+  }, [supabase, game.id]);
 
   async function loadHistory() {
     const { data } = await supabase
@@ -47,26 +58,52 @@ export function CardGame({ game, profile, partner }: { game: Game; profile: Prof
         setCards(data ?? []);
         setLoading(false);
       });
+    loadSession();
     loadHistory();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function draw() {
+  useEffect(() => {
+    const channel = supabase
+      .channel(`card-game-${game.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "game_sessions", filter: `game_id=eq.${game.id}` }, loadSession)
+      .subscribe();
+    // Realtime UPDATE events (marking a card "done") are unreliable in practice —
+    // poll as a safety net so the shared card never gets stuck for the other
+    // player. INSERTs (drawing) push instantly through the subscription above.
+    const poll = setInterval(loadSession, 4000);
+    return () => {
+      supabase.removeChannel(channel);
+      clearInterval(poll);
+    };
+  }, [supabase, game.id, loadSession]);
+
+  const drawn = session ? cards.find((c) => c.id === session.custom_question) ?? null : null;
+
+  async function draw() {
     const pool = category === "all" ? cards : cards.filter((c) => c.category === category);
     if (pool.length === 0) return;
-    setDrawn(pool[Math.floor(Math.random() * pool.length)]);
+    const picked = pool[Math.floor(Math.random() * pool.length)];
+    const { data: newSession, error } = await supabase
+      .from("game_sessions")
+      .insert({ game_id: game.id, status: "active", category: picked.category, custom_question: picked.id, created_by: profile.id })
+      .select()
+      .single();
+    if (error || !newSession) return;
+    setSession(newSession);
+    await logActivity(supabase, {
+      actionType: "game_started",
+      description: `${profile.display_name} drew a card for both of you.`,
+      targetType: "game_session",
+    });
   }
 
   async function markDrawn() {
-    if (!drawn) return;
+    if (!session || !drawn) return;
     await supabase.from("card_draws").insert({ card_id: drawn.id, drawn_by: profile.id });
-    await logActivity(supabase, {
-      actionType: "card_drawn",
-      description: `${profile.display_name} drew a card game prompt.`,
-      targetType: "game_session",
-    });
+    await supabase.from("game_sessions").update({ status: "completed", completed_at: new Date().toISOString() }).eq("id", session.id);
     push("Card saved.", "success");
-    setDrawn(null);
+    setSession(null);
     loadHistory();
   }
 
@@ -120,8 +157,8 @@ export function CardGame({ game, profile, partner }: { game: Game; profile: Prof
             transition={{ duration: 0.35 }}
           >
             <Card className="flex min-h-56 flex-col items-center justify-center gap-4 border-accent-soft bg-gradient-to-b from-accent/5 to-card p-8 text-center">
-              <span className="rounded-full bg-accent/10 px-3 py-1 text-[11px] font-medium uppercase tracking-wide text-accent">
-                {drawn.category}
+              <span className="flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1 text-[11px] font-medium uppercase tracking-wide text-accent">
+                <Users className="h-3 w-3" /> {drawn.category} · both of you are seeing this
               </span>
               <p className="font-serif-display text-2xl leading-snug">{drawn.prompt}</p>
             </Card>
@@ -137,7 +174,7 @@ export function CardGame({ game, profile, partner }: { game: Game; profile: Prof
         ) : (
           <Card className="flex min-h-56 flex-col items-center justify-center gap-4 p-8 text-center">
             <p className="text-sm text-muted-foreground">
-              {loading ? "Loading the deck…" : "Draw a card to see what you get."}
+              {loading ? "Loading the deck…" : "Draw a card — you'll both see the same one."}
             </p>
             <Button size="lg" onClick={draw} disabled={loading}>
               <Shuffle className="h-4 w-4" /> Draw a card

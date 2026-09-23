@@ -66,8 +66,12 @@ export function TwoTruths({ game, profile, partner }: { game: Game; profile: Pro
       .channel(`ttal-${game.id}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "game_sessions", filter: `game_id=eq.${game.id}` }, load)
       .subscribe();
+    // Safety net — realtime UPDATE events have proven unreliable in practice, so
+    // poll alongside the subscription rather than depend on it alone.
+    const poll = setInterval(load, 4000);
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(poll);
     };
   }, [supabase, game.id, load]);
 
@@ -81,8 +85,10 @@ export function TwoTruths({ game, profile, partner }: { game: Game; profile: Pro
         load
       )
       .subscribe();
+    const poll = setInterval(load, 4000);
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(poll);
     };
   }, [session, supabase, load]);
 

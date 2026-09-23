@@ -86,8 +86,11 @@ export function GuessMe({ game, profile, partner }: { game: Game; profile: Profi
       .channel(`guess-me-lobby-${game.id}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "game_sessions", filter: `game_id=eq.${game.id}` }, load)
       .subscribe();
+    // Safety net alongside the subscription — see the note in use-simultaneous-round.ts.
+    const poll = setInterval(load, 4000);
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(poll);
     };
   }, [supabase, game.id, load]);
 
@@ -101,8 +104,10 @@ export function GuessMe({ game, profile, partner }: { game: Game; profile: Profi
         load
       )
       .subscribe();
+    const poll = setInterval(load, 4000);
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(poll);
     };
   }, [session, supabase, load]);
 
