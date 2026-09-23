@@ -179,8 +179,42 @@ body {
 .leaflet-control-attribution a {
   color: #7a1f2e !important;
 }
-/* Gently warm the OSM tiles toward the rose/maroon palette without
-   darkening them — the map background is now light. */
+/* CARTO Voyager tiles are already colorful and cute — just a light rose
+   wash to tie them into the palette, no heavy desaturation needed. */
 .leaflet-tile-pane {
-  filter: saturate(0.7) sepia(0.15) hue-rotate(-10deg) contrast(1.02);
+  filter: saturate(1.05) sepia(0.08) hue-rotate(-6deg) contrast(1.02);
+}
+
+/* Cute teardrop pins: pop in instead of appearing instantly, and lift
+   slightly on hover so the map feels alive rather than a flat overlay.
+   Animated on the inner wrapper only — see the comment in world-map-inner.tsx
+   for why the outer .place-pin-icon element must stay untouched. */
+.place-pin-inner {
+  animation: pin-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transition: transform 0.15s ease;
+}
+.place-pin-inner:hover {
+  transform: translateY(-3px) scale(1.06);
+}
+@keyframes pin-pop {
+  from { transform: scale(0) translateY(6px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* Always-on place-name labels (replacing the tile basemap's own labels,
+   which we removed so every name reads in English, in our own hand). */
+.place-pin-label.leaflet-tooltip {
+  background: #fff3f5;
+  color: #4a1420;
+  border: 1px solid #f0c9d0;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-family: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: 0 4px 12px rgba(74, 20, 32, 0.18);
+}
+.place-pin-label.leaflet-tooltip::before {
+  display: none;
 }
